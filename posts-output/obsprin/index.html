@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>andruiman&#39;s blog: Observation principle and program units</title>
+    
+<meta name="keywords" content="verification,cryogen,measurement,languages,programming,expressiveness,brain,state,observability,humans,art,specification">
+
+<meta property="og:url" content="https://andruiman.me/posts-output/obsprin/" />
+<meta property="og:title" content="Observation principle and program units" />
+<meta property="og:type" content="article" />
+
+    <link rel="canonical" href="https://andruiman.me/posts-output/obsprin/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700" rel="stylesheet"
+          type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">andruiman&#39;s blog</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/">Home</a></li>
+                <li
+                ><a href="/archives/">Archives</a></li>
+                
+                <li><a href="/feed.xml">RSS</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">5 September 2022</div>
+        
+    </div>
+    <h2>Observation principle and program units</h2>
+</div>
+<div>
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script><script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true},
+      jax: ["input/TeX","input/MathML","input/AsciiMath","output/CommonHTML"],
+      extensions: ["tex2jax.js","mml2jax.js","asciimath2jax.js","MathMenu.js","MathZoom.js","AssistiveMML.js", "[Contrib]/a11y/accessibility-menu.js"],
+      TeX: {
+      extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"],
+      equationNumbers: {
+      autoNumber: "AMS"
+      }
+    }
+  });
+</script><h3 id="common-functional-pattern">Common functional pattern</h3><p>Thinking of program structure we inevitably come to the necessity to somehow structure it, to find common elements which can be described uniformly. That is happening FMPOV because the good ability of our brains to perform deduction. That is having the  most general structure it is easier to see it on particular examples than without the generalization.
+However induction, that  is transformation a series of isolated observations to the general common behavior is a more complicated task. So the same story is with programs, and we  try to decompose it to uniform elements for better
+judging about.</p><p>Those let to differentiation of programming languages based on a way they structure the program text. We know about</p><ul><li>functional</li><li>procedural</li><li>object oriented</li><li>logical etc.</li></ul><p>languages and also about modules, libraries, interfaces, classes, types etc. just to represent different ways of thinking about what a program consists of and how to treat it's elements to analyze.</p><p>My every day work is highly connected with smart contracts and  thinking about the most common element (unit) of a contract I've come to the following representation. (However as programming language and software unit for contracts don't give something very special, the following structure can be easily adopted almost to any program kind).</p><p><img src="../../img/progunit.drawio.png" alt="Basic program unit" /></p><p>Let's shortly describe what we have here.
+We consider a system (program complex with holistic utility) to contain:</p><ul><li><p>Several subsystems divided by the hardware, access control, or just by purpose (circles)</p></li><li><p>The unit of program which commonly is referred as interface function - the very essence that receives external (from the outer world - another subsystem) or internal (from the same subsystem) impact or message or signal, whatever serialized data of interaction</p></li><li><p>The state of the subsystem, that is a series of values characterizing the current internal variables, or database or memory whatever which has a "storage" with read or/and write access. That state can be considered as a unintended immanent input for all operations, so the impacting agent doesn't  have a direct access or control to this state</p></li><li><p>As a result of an impact we have</p><ul><li>Serialized response or output, the result of evaluation of the program unit (can be void)</li><li>Further messages which can be sent to other agents (the external (superstate) execution)</li><li>And state modifier, which having write access to the  internal state can modify it in a prescribed way (the internal execution)</li></ul></li></ul><p>I am not going to discuss here <em>pros</em> and <em>cons</em> of such a scheme - we don't need it as a final artifact, just as sandbox for our following reasoning.</p><h3 id="observability">Observability</h3><p>Observability, based on <a href="https://en.wikipedia.org/wiki/Observability">Wikipedia</a> is</p><blockquote><p>a measure of how well internal states of a system can be inferred from knowledge of its external outputs.</p></blockquote><p>Coming originally from quantum mechanics observability principle can be naïvely explained as "the only knowledge we can mine from the object is that we get from the observations". In theoretical physics we generally distinguish between observable and unobservable values. For example that leads to many calibration theories where, introducing some state variable $A$ and knowing that really observable value is $F(A)$ with for example linear $F$ we can
+introduce new state variable $A'=A+C$ such that $F(C)=0$, so the observation holds and $C$ is "unobservable".</p><p>In computer science we can also introduce state variables, and as well we can think that observations (get-methods) do not give us full access to the internal state, so that really
+observable values differ from the full state in general. That allows us to judge the external system behavior from the position of observability and distinguish therefore between internal and external "phase" space.</p><p>The mentioned above get-methods we will call measurements.</p><h3 id="measurements">Measurements</h3><p>Everybody knows that computers cannot still deal with real numbers, so we firstly restrict ourselves only by measurements of type $f:S→ \mathbb{N}$ assuming the isomorphism between $\mathbb{N}$ and $\mathbb{Q}$ for example.
+But that is not the only restriction. Actually we cannot measure very big numbers, as computers are finite and every number is actually represented by finite series of bits. So we can restrict the measurements codomain with $\mathbb{B}$ where $\mathbb{B}={0,1}$ boolean set.</p><p>So having a set of possible measurements as functions $f:S→ \mathbb{B}$ we can ask ourselves about a possibility to reconstruct the original state (in external meaning) based
+only on all possible measurements.</p><p>The brilliant work <a href="https://link.springer.com/book/10.1007/b98871">Smooth Manifolds and Observables</a> sketches the way it could be done. However this book describes $\mathbb{R}$-algebras but we have something that is built upon $\mathbb{B}$. We can try to repeat the steps for <a href="https://en.wikipedia.org/wiki/Boolean_algebra">boolean algebra</a>.</p><p>Suggest a state $s∈S$ and a set of all feasible functions $F$ consisting of $f:S→ \mathbb{B}$, which we called measurements. Note that if we have two function $f_1,f_2$ we can construct $f_3=f_1\land f_2$ and $f_4=f_1\lor f_2$ even if they don't occasionally belong to the original set. Also we have two constants $∀ s, \textrm{true}(s)=1;\textrm{false}(s)=0$.
+Trivial calculations will lead us to the fact that every set of such measurements can be expanded to boolean algebra.</p><h3 id="isomorphism">Isomorphism</h3><p>So now start with the given $\mathbb{B}$-algebra of measurements. I will not give here strict propositions, just sketching what can be done with that stuff on some example.</p><p>Suggest $S=\mathbb{N}$ so we have a collection $f_α :\mathbb{N}→ \mathbb{B}$ generating boolean algebra. It is quite obvious that this collection is isomorphic to all possible subsets $u ⊆ \mathbb{N}$ in the following sense:</p><p>$$iso:f↔ u ⟺ ∀ s∈ u, f(s)=1 ∧ ∀ s∈ \mathbb{N} \setminus u, f(s)=0$$
+The algebraic operations will be then: union $\to$ disjunction, intersection $\to$ conjunction, units -
+$\varnothing$ $\to$ $false$, $\mathbb{N}$ $\to$ $true$.</p><p>So that the collection index $α ∈ 2^\mathbb{N}$ belongs to power-set of $\mathbb{N}$.</p><p>Now consider all possible homomorphisms between $F = 2^\mathbb{N}$ and $\mathbb{B}$ which preserve boolean algebraic structure. How can we distinguish between two of them?</p><p>Take $h_x:F → \mathbb{B}, h_x(u) = 1,\ \textrm{iff}\ x∈ u$ .
+Prove that collection of $h_x$ contains all possible homomorphisms. Suggest we have one homomorphism $h$ such that</p><p>$$∀ x∈ \mathbb{N}\ ∃ v_x∈ 2^\mathbb{N}, x∈ v_x ∧ h(v_x) = 0$$</p><p>so we cannot say that it is one of $h_x$.</p><p>Hence</p><p>$$1≡ h(\mathbb{N})=h(\cup_{x∈ \mathbb{N}}{x})=h(\cup_{x∈ \mathbb{N}}v_x)=\lor_{x}h(v_x)=0$$</p><p>as $v_x∋ x\ ∀ x$ and we have come to contradiction.</p><p>We see now that each homomorphism in some sense corresponds to
+a natural point $x$. Interpreting functional application $x(u)≡ h_x(u)=x∈u$ we have for all measurement $f$</p><p>$$ f(x)=[x∈iso(f)]=x(u)=x(iso(u))=x(f) $$</p><p>where we temporarily denoted $iso(f)$ as $u$.</p><p>This isomorphism between points of original state and all homomorphisms between measurement algebra $F$ and $\mathbb{B}$ we will call later canonical.</p><h3 id="what-is-next">What is next</h3><p>I will take a closer look at evals and execs which determine the behavior of subsystem as a <em>full</em> reaction to impact in terms of monadic calculations and give more interesting examples of canonical isomorphism for some useful states.</p><p>Observability principle can be adopted for analysis of system behavior as it allows to describe the externally observable internal state based on set of given measurements. All the difference between real internal state <em>type</em> and observed one
+can be considered as <em>type calibration</em>.</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/tags-output/measurement/">measurement</a>
+    
+    <a href="/tags-output/state/">state</a>
+    
+    <a href="/tags-output/observability/">observability</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/spec/">&laquo; Program specification</a>
+        
+        
+        <a class="right" href="/posts-output/progart/">Programming and art &raquo;</a>
+        
+    </div>
+
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <!-- <li><a href="http://cryogenweb.org/docs/home.html">Cryogen Docs</a></li>
+                    <li><a href="https://carmen.la/blog/archives">Carmen's Blog</a></li>  -->
+                    
+                    <li><a href="/pages-output/random-page/">Random Page</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/posts-output/morespec/">Program specification (cont.)</a></li>
+                        
+                        <li><a href="/posts-output/spec/">Program specification</a></li>
+                        
+                        <li><a href="/posts-output/obsprin/">Observation principle and program units</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/tags-output/verification/">verification</a></li>
+                        
+                        <li><a href="/tags-output/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/tags-output/measurement/">measurement</a></li>
+                        
+                        <li><a href="/tags-output/languages/">languages</a></li>
+                        
+                        <li><a href="/tags-output/programming/">programming</a></li>
+                        
+                        <li><a href="/tags-output/expressiveness/">expressiveness</a></li>
+                        
+                        <li><a href="/tags-output/brain/">brain</a></li>
+                        
+                        <li><a href="/tags-output/state/">state</a></li>
+                        
+                        <li><a href="/tags-output/observability/">observability</a></li>
+                        
+                        <li><a href="/tags-output/humans/">humans</a></li>
+                        
+                        <li><a href="/tags-output/art/">art</a></li>
+                        
+                        <li><a href="/tags-output/specification/">specification</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>Copyright &copy; 2022 andruiman
+        <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p></footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>andruiman&#39;s blog: Program verification in general</title>
+    
+<meta name="keywords" content="verification,cryogen,measurement,languages,programming,expressiveness,brain,state,observability,humans,art,specification">
+
+<meta name="description" content="What is program verificationFormal verification (FV) is a series of methods and technologies allowing to get much more reliable guarantees of software (or hardware) correctness than traditional approaches based on testing.">
+
+<meta property="og:description" content="What is program verificationFormal verification (FV) is a series of methods and technologies allowing to get much more reliable guarantees of software (or hardware) correctness than traditional approaches based on testing.">
+
+<meta property="og:url" content="https://andruiman.me/posts-output/vergen/" />
+<meta property="og:title" content="Program verification in general" />
+<meta property="og:type" content="article" />
+
+    <link rel="canonical" href="https://andruiman.me/posts-output/vergen/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700" rel="stylesheet"
+          type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">andruiman&#39;s blog</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/">Home</a></li>
+                <li
+                ><a href="/archives/">Archives</a></li>
+                
+                <li><a href="/feed.xml">RSS</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">1 September 2022</div>
+        
+    </div>
+    <h2>Program verification in general</h2>
+</div>
+<div>
+    
+    <h3 id="what-is-program-verification">What is program verification</h3><p>Formal verification (FV) is a series of methods and technologies allowing to get much more reliable guarantees of software (or hardware) correctness than traditional approaches based on testing.</p><p>The correctness in this case is a correspondence of the behavior to the specification which should be given in a <em>strict and formal way</em>. Traditionally the outcome (main artifact) of the FV process is called <em>the proof</em> and in the deductive branch of the technology it is actually the strict mathematical proof of the software properties which is in turn to be verified by the special software named <em>proof assistants</em>.</p><p>Industrial approach suggests the full FV stack consists of</p><ul><li>informal audit</li><li>informal business level specification</li><li>formal engineer level specification</li><li>verification (proof) of the given code against the formal specification.</li></ul><p>There are a lot of possible ways to perform software verification, all they differ in feasible strictness, potential completeness and deal both with production code or simplified models (used for protocols verification for example). The most methods used in FV are based on contemporary scientific research in mathematics and computer science. The underlying theory is still at the scientific edge and under permanent development and have deep influence both on computer science and mathematics itself <em>(I am going to show that in further posts)</em>.</p><p>There exists well popular common sense that FV can guarantee absolute correctness if successfully completed. That is only <em>partially</em> true.</p><p>The more strict proposition is that deductive FV methods guarantee absolute correctness with respect to the given specification. The quality of the specification itself and it's <em>completeness and consistency</em> are independent problems, and often the specification, good or not-so-good, is suggested to be given out of the box, however the FV methods can be applied to assess the specification properties as well. In comparison with testing where only finite subset of cases can be considered, FV deals also with infinite number of cases literally proving the properties <em>for all</em> allowed values of variable parameters of the system. Another important feature of the deductive FV is that it is inheritable: the properties have not to be reverified when embedding the proven subsystem into a bigger one, all statements hold until one changes the code or specification.</p><p>The proof itself has not to be analyzed or manually read - the task to verify the proofs is on duty of special very sophisticated software. The consumers of FV results might assess only the specification: if it is good enough and proofs are verified by external proof assistants, the job is well done, and the verified software is assumed to be <em>correct</em>.</p><h3 id="methods-we-use-in-pruvendo">Methods we use in Pruvendo</h3><p>(I am a cofounder of <a href="https://www.pruvendo.com">Pruvendo</a> company which specifies on smart contract verification, so I put it here, though this blog is my personal, and I am not going to advertise anything here)</p><p>We basically work on the deductive branch of the formal verification technology. We use <a href="https://coq.inria.fr">Coq proof assistant</a> to state the properties and verify proofs. To cover the full stack of the verification process we divide it in the following steps.</p><p>On the first stage we make an informal audit of the contracts. This allows to realize the program architecture and dependencies, construct the call graph of contracts methods, find the potential security holes and prepare ourselves to the specification creation step. During this phase we actively communicate with developers and project managers to fully understand the system purpose and environment where it should be run at production phase.
+It happens that after this stage we offer the developers to make some workarounds to mitigate the revealed issues and to correct architectural limitations if any.</p><p>The second stage deeply connected with the first one and here we summarize the audit results to the <em>informal specification</em> - that is free but technical description of what system does, which high level properties it should have, and describe the main user scenarios of exploitation. One can think of scenarios as the <em>user guide</em> where we state how the user should act to get the estimated results or particular process flow. This high level document we also use to reconcile with developers to be assured that we are on the same wave.</p><p>After that our more technical work begins. To perform the verification process we need to represent both specification and code in a way which could be understood by the Coq proof assistant. And we developed our Coq embedded language we call <a href="https://ursus-lang.dev">Ursus</a> to perform that task. Ursus toolkit allows to translate the original <a href="https://docs.soliditylang.org/">solidity</a> code to the form which is very syntactically close but in the same time consists of correct Coq terms. Having both artifacts - specification and code in Ursus language we can perform further steps. To simplify the transition between informal specification and formal propositions in Coq we are developing intermediate language (without final name) which is strict enough but more human readable in comparison with Coq native language for predicates statements.</p><p>The lot of work as you see have to be done before we start proving the properties. Actually the process of deductive verification is still time consuming so we make yet another step before it. We run sophisticated randomized tests after the completion of Ursus translation. That is taking the propositions formulated on the previous steps inside Coq ecosystem we use special methods to run property-based checker which apply brute forcing algorithms to find the counter examples. After that when most of the issues are gone we use the deductive verification schemes to mathematically prove the correctness of the properties revealed. The good news here are that we do not need to reformulate the properties we used for randomized checking. So we just use two different techniques to verify the common set of contract's properties.</p><p>After the completion of all steps we may think that contract behavior is correct against the formulated specification which is in turn tightly connected with what developers and task managers see and estimate from the software under investigation.</p><p>All the phases we supply with comprehensive reports and verification code such that every consumer can check the proofs by herself and match the properties with her view.</p><p>(As I wrote before that is not advertising but this text allows me to explain something later without returning to the whole process)</p><h3 id="types-of-verification-directions">Types of verification directions</h3><h4 id="unit-properties-functionality">Unit properties (functionality)</h4><h4 id="direct-scenarios-liveness">Direct scenarios (liveness?)</h4><h4 id="inverse-scenarios-security">Inverse scenarios (security)</h4><h3 id="functional-and-declarative-and-imperative-programs">Functional (and declarative) and imperative programs</h3><h3 id="do-we-really-need-our-programs-to-be-verified">Do we really need our programs to be verified</h3><h3 id="what-is-next">What is next</h3><p>some stuff happened</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/tags-output/verification/">verification</a>
+    
+    <a href="/tags-output/programming/">programming</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/progart/">&laquo; Programming and art</a>
+        
+        
+        <a class="right" href="/posts-output/multiprog/">Multi dimensional programming &raquo;</a>
+        
+    </div>
+
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <!-- <li><a href="http://cryogenweb.org/docs/home.html">Cryogen Docs</a></li>
+                    <li><a href="https://carmen.la/blog/archives">Carmen's Blog</a></li>  -->
+                    
+                    <li><a href="/pages-output/random-page/">Random Page</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/posts-output/morespec/">Program specification (cont.)</a></li>
+                        
+                        <li><a href="/posts-output/spec/">Program specification</a></li>
+                        
+                        <li><a href="/posts-output/obsprin/">Observation principle and program units</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/tags-output/verification/">verification</a></li>
+                        
+                        <li><a href="/tags-output/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/tags-output/measurement/">measurement</a></li>
+                        
+                        <li><a href="/tags-output/languages/">languages</a></li>
+                        
+                        <li><a href="/tags-output/programming/">programming</a></li>
+                        
+                        <li><a href="/tags-output/expressiveness/">expressiveness</a></li>
+                        
+                        <li><a href="/tags-output/brain/">brain</a></li>
+                        
+                        <li><a href="/tags-output/state/">state</a></li>
+                        
+                        <li><a href="/tags-output/observability/">observability</a></li>
+                        
+                        <li><a href="/tags-output/humans/">humans</a></li>
+                        
+                        <li><a href="/tags-output/art/">art</a></li>
+                        
+                        <li><a href="/tags-output/specification/">specification</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>Copyright &copy; 2022 andruiman
+        <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p></footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>

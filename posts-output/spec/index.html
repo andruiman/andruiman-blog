@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>andruiman&#39;s blog: Program specification</title>
+    
+<meta name="keywords" content="verification,cryogen,measurement,languages,programming,expressiveness,brain,state,observability,humans,art,specification">
+
+<meta property="og:url" content="https://andruiman.me/posts-output/spec/" />
+<meta property="og:title" content="Program specification" />
+<meta property="og:type" content="article" />
+
+    <link rel="canonical" href="https://andruiman.me/posts-output/spec/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700" rel="stylesheet"
+          type="text/css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.7.0/styles/default.min.css">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">andruiman&#39;s blog</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a href="/">Home</a></li>
+                <li
+                ><a href="/archives/">Archives</a></li>
+                
+                <li><a href="/feed.xml">RSS</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">19 September 2022</div>
+        
+    </div>
+    <h2>Program specification</h2>
+</div>
+<div>
+    
+    <style type="text/css">
+code.has-jax {font: inherit; font-size: 100%; background: inherit; border: inherit;}
+</style><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] // removed 'code' entry
+    }
+});
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML-full"></script><h3 id="what-is-program-specification">What is program specification</h3><p>I am not going here to refer to any authorities or encyclopedic articles.
+The common sense tells us that we think of specification of more or less strict description of program behavior in a whole or its separate parts. The hope is that the specification</p><ul><li>is more human friendly than a code</li><li>is as much as possible implementation agnostic</li><li>reflects designer's vision rather than developer's one</li><li>does't require knowledge of programming languages maybe besides some of the form of <em>stricter human language</em> or some of the simplified form of <em>predicates language</em> to express propositions like $∀ ...$ or $∃ ...$.</li></ul><p>Unfortunately that is only a hope. Deep thinking about the possibility of such specification
+emergence leads us to realizing that usual software development process especially in the not-very-big companies is like</p><ul><li>whoever (sales manager, kind of director, some presuming guy or committee etc) tell the team lead (or anybody who has the same or similar language with developers) something like "We need the following program or feature or whatever which could be programmed"</li><li>then team lead discuss with developers and testers the architecture and iteratively and <em>agilely</em> they do the following cycle think/discuss - code - test - analyze</li><li>sometimes they do the phase of think/discuss together with initial task giver</li></ul><p>When finally the program looks good they can finish and go to the production or begin to think about additional verification. They might even have a documentation which is "more human readable than a code", "implementation agnostic" (rare), reflects designer's vision and even use more or less formal language. But the problem is that all those are created <em>post factum</em> and very often by the same people who participate in development and testing.
+Another contradiction here is that everybody is always in a hurry, production use and customers don't like to wait. And as a result the documentation describes not "what program must do" but "what it hopefully does".</p><p>I will not give the answer here, I just put the issue. And later will write some ideas of how all those can be mitigated in theory.</p><h3 id="does-the-program-specify-itself">Does the program specify itself?</h3><p>Programs often consist of functions, methods, blocks, whatever... And people think that while specifying the program in general they must start with individual functions specification. Btw I totally disagree with that. And here and mostly in the next posts I will try to explain myself.</p><p>Start with the example of factorial function:</p><p>In <code>C++</code> (or any similar language):</p><p>(recursive)</p><pre><code class="c++">unsigned int factorial(unsigned int n)
+{
+    if (n == 0 || n == 1)
+        return 1;
+    return n * factorial(n - 1);
+}
+</code></pre><p>or not recursive</p><pre><code class="c++">unsigned int factorial(unsigned int n)
+{
+    int res = 1, i;
+    for (i = 2; i &lt;= n; i++)
+        res *= i;
+    return res;
+}
+</code></pre><p>(I will not further give recursive examples on non-functional languages.)</p><p><code>Haskell</code> recursive:</p><pre><code class="haskell">fac :: (Integral a) =&gt; a -&gt; a
+fac 0 = 1
+fac n = n * fac (n - 1)
+</code></pre><p><code>Coq</code> recursive:</p><pre><code class="coq">Fixpoint fac (n:nat) : nat :=
+match n with
+| O =&gt; 1
+| S n' =&gt; (S n')*(fac n')
+end.
+</code></pre><p><code>Coq</code> in proof mode:</p><pre><code class="coq">Definition fac_proofmode (n:nat) : nat.
+    induction n ; [exact 1 | exact (S n*IHn)].
+Defined.
+</code></pre><p>Mathematical definition is</p><p>$$ n!=\Pi_{i=1}^n i $$</p><p>Coq with some helpers which simulate the mathematical definition:</p><pre><code class="coq">Fixpoint fold_left {A B} 
+         (f : A -&gt; B -&gt; A) 
+         (l:list B) (a0:A) : A :=
+match l with
+   | nil =&gt; a0
+   | cons b t =&gt; fold_left f t (f a0 b)
+end.
+
+Fixpoint series (n:nat) (m:nat) {struct m} : list nat :=
+match m with
+   | O =&gt; nil
+   | S m' =&gt; if (leb n m) then cons m (series n m') else nil
+end.
+
+Definition fac_foldl (n:nat) : nat :=
+   fold_left mult (series 1 n) 1.
+</code></pre><p>Note that <code>fac_foldl</code> looks already very similar to mathematical definition. We can even go a little bit further with Coq notations:</p><pre><code class="coq">Notation " [ n 'to' m ] " := (series n m)  (at level 20).
+
+Notation " 'Π' l " := (fold_left mult l 1) (at level 20).
+
+Definition facmath (n:nat): nat := Π [ 1 to n].
+
+Notation " n ! " := (facmath n) (at level 20).
+
+Compute 0!. (* 1 *)
+Compute 1!. (* 1 *)
+Compute 2!. (* 2 *)
+Compute 3!. (* 6 *)
+Compute 5!. (* 120 *)
+</code></pre><p>Now ask yourself why we think that mathematical definition is "correct" but the program we use to calculate factorial has to be verified. Why <code>C++</code> or <code>Haskell</code> examples we consider as <em>programs</em> but</p><p>$$\Pi_{i=1}^n i$$</p><p>expression as <em>formula</em>. And what about <code>Coq</code> definitions then - are they <em>programs</em> or <em>formulas</em>?</p><p>To give mathematical definition we must preliminary know what is</p><p>$$Π_{i=...}^{...} ...(i)$$</p><p>notation which is actually not trivial. For example it would be probably hard to explain to kids of smaller grades what all this stuff means. This  point makes <em>program</em> definitions of factorial actually not longer than mathematical, as they are full expressions on the correspondent language but the mathematical definition suggests some <em>educational background context</em>. The latest is very important fact when comparing mathematical and programming education and skills. Exactly the <em>context</em> allows humans to evolve in mathematics.</p><p>However the factorial notion is as simple as <em>"multiplication of all (natural) numbers from 1 to the given one"</em>. And it is not-too-hard to explain this to anybody who knows numbers and multiplication.</p><p>From my point of view though <code>Coq</code> and <code>Haskell</code> give definitions more close to mathematical (but who says that mathematical variant should be considered as original?), the <code>C++</code> can be also considered as <em>definition</em> - not a <em>program</em>.</p><p>We can consider the <code>Coq</code> (recursive) variant as specification and prove that <code>C++</code> variant corresponds it or opposite: take the <code>Coq</code> variant as a <em>program</em> and prove that it corresponds <code>C++</code> specification. If one thinks about this a little bit more she comes to following important generalization: <em>specification and program are just different ways to say the same thing</em>.</p><p>And the main point of verification is that if one proves that two differently said things are the same (one corresponds in some sense to another) those things are possibly correct because ... (unexpectedly) ... <em>it is difficult to make the same mistake in defining a thing twice in different ways</em>.</p><p>Not being verbatim I will show how it could be done in <code>Coq</code> proving that</p><p>$$ ∀ n, {\rm fac}\ (n) = {\rm facmath}\ (n) $$</p><pre><code class="coq">Lemma pi_gen: forall (l: list nat) (a0: nat),
+              fold_left mul l a0 = a0 * (fold_left mul l 1).
+Proof.
+   intros l. induction l; intros. { simpl. lia. }
+   simpl. rewrite IHl. symmetry. rewrite IHl.
+   lia.
+Qed.
+   
+Lemma fac_correct: forall n, fac n = n!.
+Proof.
+    induction n. { reflexivity. }
+    unfold fac_math. 
+    simpl. rewrite IHn. 
+    rewrite pi_gen.
+    replace (n+0) with n by lia.
+    remember (n!) as f. 
+    remember (Π ([1 to n])) as f1.
+    assert (f=f1). subst f f1. reflexivity.
+    lia.
+Qed.
+</code></pre><p>This is not tutorial on <code>Coq</code> and I even didn't think about
+optimality of definitions and proofs - just showing that it is actually easy to proof the equivalence of two definitions.</p><p>Resuming I would like to note that distinguishing between <em>program</em> and <em>specification</em> is sometimes artificial - that is just two (or more) ways to say the same thing.</p><p>Well..., until one may reveal some specific properties and  prove them separately. Like $n!&gt;0$ or $(n+1)!=(n+1)*n!$ or maybe even for given and <em>independently defined</em> <a href="https://en.wikipedia.org/wiki/Gamma_function">$Γ$-function</a> we have the property $Γ (n+1)=n!$. And all these can be proven showing more specific properties. Will those convince us in <em>program</em> correctness  or not depends exclusively on our internal ratio of willingness to have maximally correct program and efforts we are ready to spend on verification.</p><p>Here is one good news. If we prove that given the specification there exists only equivalent functions in some sense (for example the strict one: $f∼g ⟺ ∀ x, f (x) = g (x)$) we can stop finding other properties to convince ourselves more.</p><p>However sometimes we can even prove such a fact. For example</p><pre><code class="coq">Definition fac_like (f:nat-&gt;nat) := 
+(forall n, f (S n) = (S n)*(f n) ) /\ (f 0 = 1) /\ (f 1 = 1).
+
+Lemma fac_like_full: forall f g, 
+      fac_like f -&gt; 
+      fac_like g -&gt; 
+      f = g.
+Proof.
+   intros.
+   extensionality n.
+   unfold fac_like in H, H0.
+   destruct H, H1, H0, H3.
+   induction n. { congruence. }
+   rewrite H, H0.
+   congruence.
+Qed.
+</code></pre><p>We use here <em>functional extensionality</em> axiom (which is exactly the same as the given above relation $f∼g$) to prove that having property <code>fac_like</code> known for two functions $f,g$ we can stop with further verification as we already have proven that $f=g$ and we cannot find any differences between them unless the theory is consistent.</p><p>Worth to note that finding non trivial full properties is very complicated task, and to prove that some property is full is either not easy in real life cases.</p><p>I will return to <code>C++</code> non-recursive variant later when writing about imperative programs properties and proofs.</p><h3 id="what-is-next">What is next</h3><p>In the next posts about specification I will discuss the possible ways to find the specifications for functional and imperative programs, the naming problem while looking for program meaning and I will also sketch two equivalent but very different in nature ways to represent imperative program which open some paths for verification.</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/tags-output/verification/">verification</a>
+    
+    <a href="/tags-output/programming/">programming</a>
+    
+    <a href="/tags-output/specification/">specification</a>
+    
+</div>
+
+
+    <div id="prev-next">
+        
+        <a href="/posts-output/morespec/">&laquo; Program specification (cont.)</a>
+        
+        
+        <a class="right" href="/posts-output/obsprin/">Observation principle and program units &raquo;</a>
+        
+    </div>
+
+    
+
+
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                    <!-- <li><a href="http://cryogenweb.org/docs/home.html">Cryogen Docs</a></li>
+                    <li><a href="https://carmen.la/blog/archives">Carmen's Blog</a></li>  -->
+                    
+                    <li><a href="/pages-output/random-page/">Random Page</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/posts-output/morespec/">Program specification (cont.)</a></li>
+                        
+                        <li><a href="/posts-output/spec/">Program specification</a></li>
+                        
+                        <li><a href="/posts-output/obsprin/">Observation principle and program units</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/tags-output/verification/">verification</a></li>
+                        
+                        <li><a href="/tags-output/cryogen/">cryogen</a></li>
+                        
+                        <li><a href="/tags-output/measurement/">measurement</a></li>
+                        
+                        <li><a href="/tags-output/languages/">languages</a></li>
+                        
+                        <li><a href="/tags-output/programming/">programming</a></li>
+                        
+                        <li><a href="/tags-output/expressiveness/">expressiveness</a></li>
+                        
+                        <li><a href="/tags-output/brain/">brain</a></li>
+                        
+                        <li><a href="/tags-output/state/">state</a></li>
+                        
+                        <li><a href="/tags-output/observability/">observability</a></li>
+                        
+                        <li><a href="/tags-output/humans/">humans</a></li>
+                        
+                        <li><a href="/tags-output/art/">art</a></li>
+                        
+                        <li><a href="/tags-output/specification/">specification</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>Copyright &copy; 2022 andruiman
+        <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p></footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/js/highlight.pack.js" type="application/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+</body>
+</html>
